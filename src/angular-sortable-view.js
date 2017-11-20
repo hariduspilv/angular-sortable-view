@@ -9,6 +9,20 @@
 	/* jshint -W041 */
 	/* jshint -W030 */
 
+	function getOffset(target) {
+		let el = target;
+		let scrollSum = {left: 0, top: 0}
+
+			while (el !== null) {
+				if (el !== document.body && el != document.documentElement) {
+					scrollSum.left += el.scrollLeft || 0
+					scrollSum.top += el.scrollTop || 0
+				}
+				el = el.parentElement
+			}
+			return scrollSum;
+	}
+
 	var module = angular.module('angular-sortable-view', []);
 	module.directive('svRoot', [function(){
 		function shouldBeAfter(elem, pointer, isGrid){
@@ -137,10 +151,12 @@
 						$scope.$root && $scope.$root.$$phase || $scope.$apply();
 					}
 
+					var offset = getOffset($helper[0]);
+
 					// ----- move the element
 					$helper[0].reposition({
-						x: mouse.x + document.body.scrollLeft - mouse.offset.x*svRect.width,
-						y: mouse.y + document.body.scrollTop - mouse.offset.y*svRect.height
+						x: mouse.x + offset.left - mouse.offset.x * svRect.width,
+						y: mouse.y + offset.top - mouse.offset.y * svRect.height
 					});
 
 					// ----- manage candidates
@@ -227,10 +243,13 @@
 							if(typeof $helper[0].style[prefix + 'transition'] !== "undefined")
 								$helper[0].style[prefix + 'transition'] = 'all ' + duration + 'ms ease';
 						});
+
+						var offset = getOffset($helper[0]);
+
 						setTimeout(afterRevert, duration);
 						$helper.css({
-							'top': placeholderRect.top + document.body.scrollTop + 'px',
-							'left': placeholderRect.left + document.body.scrollLeft + 'px'
+							'top': placeholderRect.top + offset.top + 'px',
+							'left': placeholderRect.left + offset.left + 'px'
 						});
 					}
 					else
@@ -346,6 +365,7 @@
 				$scope.$ctrl = this;
 			}],
 			link: function($scope, $element, $attrs, $controllers){
+
 				var sortableElement = {
 					element: $element,
 					getPart: $controllers[0].getPart,
@@ -398,7 +418,7 @@
 					opts = angular.extend({}, {
 						tolerance: 'pointer',
 						revert: 200,
-						containment: 'html'
+						containment: null
 					}, opts);
 					if(opts.containment){
 						var containmentRect = closestElement.call($element, opts.containment)[0].getBoundingClientRect();
@@ -408,22 +428,24 @@
 					var clientRect = $element[0].getBoundingClientRect();
 					var clone;
 
+					var offset = getOffset(target[0]);
+
 					if(!helper) helper = $controllers[0].helper;
 					if(!placeholder) placeholder = $controllers[0].placeholder;
 					if(helper){
 						clone = helper.clone();
 						clone.removeClass('ng-hide');
 						clone.css({
-							'left': clientRect.left + document.body.scrollLeft + 'px',
-							'top': clientRect.top + document.body.scrollTop + 'px'
+							'left': clientRect.left + offset.left + 'px',
+							'top': clientRect.top + offset.top + 'px'
 						});
 						target.addClass('sv-visibility-hidden');
 					}
 					else{
 						clone = target.clone();
 						clone.addClass('sv-helper').css({
-							'left': clientRect.left + document.body.scrollLeft + 'px',
-							'top': clientRect.top + document.body.scrollTop + 'px',
+							'left': clientRect.left + offset.left + 'px',
+							'top': clientRect.top + offset.top + 'px',
 							'width': clientRect.width + 'px'
 						});
 					}
@@ -445,8 +467,8 @@
 							if(targetLeft + helperRect.width > containmentRect.left + body.scrollLeft + containmentRect.width) // right boundary
 								targetLeft = containmentRect.left + body.scrollLeft + containmentRect.width - helperRect.width;
 						}
-						this.style.left = targetLeft - body.scrollLeft + 'px';
-						this.style.top = targetTop - body.scrollTop + 'px';
+						this.style.left = targetLeft + 'px';
+						this.style.top = targetTop + 'px';
 					};
 
 					var pointerOffset = {
@@ -456,7 +478,7 @@
 					html.addClass('sv-sorting-in-progress');
 					html.on('mousemove touchmove', onMousemove).on('mouseup touchend touchcancel', function mouseup(e){
 						html.off('mousemove touchmove', onMousemove);
-						html.off('mouseup touchend touchcancel', mouseup);
+						html.off('mouseup touchend', mouseup);
 						html.removeClass('sv-sorting-in-progress');
 						if(moveExecuted){
 							$controllers[0].$drop($scope.$index, opts);
