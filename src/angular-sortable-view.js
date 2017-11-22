@@ -114,7 +114,7 @@
 					var elementChildren = svElement[0].children[2];
 
 					elementChildren.style.display = 'none';
-					
+
 					if(opts.tolerance === 'element')
 						mouse = {
 							x: ~~(svRect.left + svRect.width/2),
@@ -413,6 +413,7 @@
 
 				function onMousedown(e){
 					touchFix(e);
+					e.preventDefault();
 
 					if($controllers[1].sortingInProgress()) return;
 					if(e.button != 0 && e.type === 'mousedown') return;
