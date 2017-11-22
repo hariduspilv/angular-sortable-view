@@ -177,7 +177,7 @@
 							(se.element[0].scrollHeight || se.element[0].scrollWidth)){ // element is visible
 							candidates.push({
 								element: se.element,
-								q: (center.x - 60 - mouse.x)*(center.x - mouse.x) + (center.y - mouse.y)*(center.y - mouse.y),
+								q: (center.x - 60 + mouse.x)*(center.x - mouse.x) + (center.y - mouse.y)*(center.y - mouse.y),
 								view: se.getPart(),
 								targetIndex: se.getIndex(),
 								after: shouldBeAfter(center, mouse, isGrid)
