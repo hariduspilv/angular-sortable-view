@@ -111,6 +111,10 @@
 
 				this.$moveUpdate = function(opts, mouse, svElement, svOriginal, svPlaceholder, originatingPart, originatingIndex){
 					var svRect = svElement[0].getBoundingClientRect();
+					var elementChildren = svElement[0].children[2];
+
+					elementChildren.style.display = 'none';
+					
 					if(opts.tolerance === 'element')
 						mouse = {
 							x: ~~(svRect.left + svRect.width/2),
