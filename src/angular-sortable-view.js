@@ -113,7 +113,7 @@
 					var svRect = svElement[0].getBoundingClientRect();
 					var elementChildren = svElement[0].children[2];
 
-					elementChildren.style.display = 'none';
+					(elementChildren) ? elementChildren.style.display = 'none' : null;
 
 					if(opts.tolerance === 'element')
 						mouse = {
